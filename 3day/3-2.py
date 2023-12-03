@@ -14,7 +14,6 @@ def main(input_file):
         data = fp.readlines()
 
     part_total = 0
-
     parts = {}
     stars = []
 
@@ -34,7 +33,6 @@ def main(input_file):
                 number += data[y][x]
 
             else:
-                
                 if data[y][x] == '*':
                     stars.append((x,y))
                     print(f"Star at {stars[-1]}")
@@ -45,10 +43,7 @@ def main(input_file):
                     parts[num_range] = int(number)
                     print(f"{number} is at range {num_range}")
                     number = ""
-
-
             prev_char = data[y][x]
-
 
     for star in stars:
         
