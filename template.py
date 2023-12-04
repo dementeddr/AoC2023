@@ -12,7 +12,11 @@ def main(input_file):
     with open(input_file, "r") as fp:
         data = fp.readlines()
 
+    ## BEGIN SOLUTION
 
+
+    
+    ## END SOLUTION
 
 if __name__ == "__main__":
     input_file = f"input-d{_day}.txt"
