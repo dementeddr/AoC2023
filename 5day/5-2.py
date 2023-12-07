@@ -23,6 +23,7 @@ def main(input_file):
 
     mapping_list = []
     cur_mapping = {}
+    cur_mapping[0] = 0
     data.append("\n")
 
     # Create mapping ranges
@@ -32,6 +33,7 @@ def main(input_file):
             
             k = sorted(cur_mapping.keys())[-1]
             print(f"  COMPLETE MAPPING. Last mapping[{k}] = {cur_mapping[k]}")
+            print(cur_mapping)
 
             cur_mapping = {}
             cur_mapping[0] = 0
@@ -70,7 +72,7 @@ def main(input_file):
 
         seed_spans = new_spans
         seed_spans.sort()
-        seed_spans = print_seed_total(seed_spans)
+        print_seed_total(seed_spans)
 
     # Find lowest and print
     print()
@@ -96,7 +98,7 @@ def map_seed_span(span, mapping):
         if span[0] > rng_end:
             continue
 
-        if span[0] <= rng_end and not start_found:
+        if span[0] >= rng_start and span[0] <= rng_end:
             if span[1] <= rng_end:
                 start = span[0] + offset
                 end = span[1] + offset
@@ -107,7 +109,6 @@ def map_seed_span(span, mapping):
                 end = rng_end + offset
                 new_spans.append( (start, end) )
                 print(f"    Add first span {new_spans[-1]}")
-                start_found = True
                 continue
         
         if span[1] <= rng_end:
@@ -135,7 +136,6 @@ def map_seed_span(span, mapping):
 
 def print_seed_total(seed_spans):
     
-    seed_spans.sort()
     seed_total = 0 
     reduced = [(0,0)]
    
