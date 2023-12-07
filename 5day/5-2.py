@@ -3,6 +3,7 @@
 import sys
 import re
 from time import perf_counter_ns
+from functools import reduce
 
 _day = 5 #Advent of Code day
 
@@ -18,7 +19,7 @@ def main(input_file):
     # Read input
     seed_pat = re.compile(r"(\d+) (\d+)")
     seed_spans = list(map(lambda m: (int(m[0]), int(m[0]) + int(m[1]) - 1), seed_pat.findall(data[0])))
-    print(seed_spans)
+    print(f"Seeds {seed_spans}\n")
 
     mapping_list = []
     cur_mapping = {}
@@ -28,9 +29,12 @@ def main(input_file):
     for line in data[2:]:
         if len(line) == 1:
             mapping_list.append(cur_mapping)
+            
+            k = sorted(cur_mapping.keys())[-1]
+            print(f"  COMPLETE MAPPING. Last mapping[{k}] = {cur_mapping[k]}")
+
             cur_mapping = {}
             cur_mapping[0] = 0
-            print("  COMPLETE MAPPING")
             continue
 
         tokens = line.strip().split(' ')
@@ -50,6 +54,7 @@ def main(input_file):
 
             print(f"Converted {tokens} -> (mapping[{map_src}] = {offset:+d}, mapping[{map_end}] = {cur_mapping[map_end]})")
 
+    print_seed_total(seed_spans)
 
     # Start tracing seed spans
     for mapping in mapping_list:
@@ -64,10 +69,13 @@ def main(input_file):
             
 
         seed_spans = new_spans
+        seed_spans.sort()
+        seed_spans = print_seed_total(seed_spans)
 
     # Find lowest and print
-    seed_spans.sort()
-    print(f"\n\nSeeded spans = {seed_spans}")
+    print()
+    print()
+    print_seed_total(seed_spans)
     print(f"Lowest location = {seed_spans[0][0]}")
             
 
@@ -115,12 +123,40 @@ def map_seed_span(span, mapping):
             new_spans.append( (start, end) )
             print(f"    Add mid span {new_spans[-1]}")
 
-    new_spans.append( (span[0], span[1]) )
-    print(f"    Add last span {new_spans[-1]} and return")
+    if span[0] < keys[-1]:
+        new_spans.append( (keys[-1], span[1]) )
+        print(f"    Add last span {new_spans[-1]} and return")
+    else:
+        new_spans.append( (span[0], span[1]) )
+        print(f"    Add last span {new_spans[-1]} and return")
     
     return new_spans
 
+
+def print_seed_total(seed_spans):
     
+    seed_spans.sort()
+    seed_total = 0 
+    reduced = [(0,0)]
+   
+    for seed in seed_spans:
+        seed_total += seed[1] - seed[0] + 1
+
+        if seed[0] == reduced[-1][1]+1:
+            old = reduced[-1]
+            reduced = reduced[:-1]
+            reduced.append((old[0], seed[1]))
+        else:
+            reduced.append(seed)
+    
+    seed_spans = sorted(seed_spans, key=lambda ss: ss[0])
+    print(f"seed spans {seed_spans}")
+    print(f"reduced spans {reduced[1:]}")
+    print(f"seed total {seed_total}")
+
+    return reduced
+
+
  ## END SOLUTION
 
 if __name__ == "__main__":
