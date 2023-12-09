@@ -35,7 +35,7 @@ def main(data):
 
     for i in range(len(hands)):
         total_bids += hands[i][1] * (i+1)
-        print(f"{hands[i][0]}  -> {i+1} * {hands[i][1]} = {total_bids}")
+        print(f"{hands[i][0]}  ->  {i+1} * {hands[i][1]:3d} = {total_bids}")
 
     print(f"Bid Total: {total_bids}")
 
@@ -48,8 +48,10 @@ def compare_hands(x, y):
     handy = hand_type(y[0]) #lol
     #print(f"{x} -> {handx}")
     #print(f"{y} -> {handy}")
+    print("-")
     print(f" x = {handx}")
     print(f" y = {handy}")
+    print("-")
     #print()
     #if x[0] == "JJJJJ":
     #    return -1
@@ -61,8 +63,8 @@ def compare_hands(x, y):
         print(f"  i. {i} {diff}")
         if diff != 0: 
             return diff
-        elif len(handx[i]) > 0:
-            break
+        #elif len(handx[i]) > 0:
+        #    break
     print()       
 
     for j in range(5):
@@ -94,25 +96,29 @@ def hand_type(hand):
         else:
             if (streak == 'J'):
                 jcount = count
-            else:
-                breakdown[count].append(value_card(streak))
-            print(f"{streak} {count}")
+            breakdown[count].append(value_card(streak))
+            #print(f"{streak} {count}")
             count = 1
             streak = card
 
-    print(f"{streak} {count}")
+    #print(f"{streak} {count}")
     if (streak == 'J'):
         jcount = count
     
     breakdown[count].append(value_card(streak))
+    max_found = False
 
     for i in range(5,0,-1):
-        if len(breakdown[i]) > 0 and max(breakdown[i]) != card_values['J']:
+        if card_values['J'] in breakdown[i] and i != 5:
+            breakdown[i].remove(card_values['J'])
+        if len(breakdown[i]) > 0 and jcount > 0 and max(breakdown[i]) != card_values['J'] and max_found is False:
             high_card = max(breakdown[i])
             print(f" {breakdown} {i} + {jcount}: {high_card}")
             breakdown[i+jcount].append(high_card)
             breakdown[i].remove(high_card)
+            max_found = True
 
+    print(f" {breakdown}")
     return breakdown
 
 
