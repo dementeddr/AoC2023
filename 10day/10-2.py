@@ -3,6 +3,7 @@
 import sys
 import re
 from time import perf_counter_ns
+from collections import deque
 
 _day = 10 #Advent of Code day
 
@@ -17,6 +18,8 @@ offsets = { # (y, x)
     '|':[(-1, 0),( 1, 0)]
     }
 
+sides = [(-1,0), (0,1), (1,0), (0,-1)]
+
 def main(data):
 
     S = (-1, -1)
@@ -25,6 +28,7 @@ def main(data):
 
     print(f"Size: {len(data)} x {len(data[0])}")
 
+    # Find Start
     for y in range(len(data)):
         for x in range(len(data[y])):
             if data[y][x] == 'S':
@@ -34,48 +38,108 @@ def main(data):
 
         if S != (-1,-1):
             break
+    
+    loop_map = find_true_loop(data, S)
+    loop_map = clear_outer_spaces(loop_map, S)
+    count = 0
 
-    starts = [(-1,0), (0,1), (1,0), (0,-1)]
-    #dists = {}
+    for y in range(len(loop_map)):
+        for x in range(len(loop_map[y])):
+            coord = (y, x)
+            char = coord_get(coord, loop_map)
+
+            if char == '.':
+                if is_inside(coord, loop_map): 
+                    count += 1
+                else:
+                    loop_map[y][x] = ' '
+                    
+
+    print_map(loop_map)
+
+    print(f"There are {count} spaces inside the pipe loop")
+
+
+def is_inside(coord, loop_map):
+    
+    count = 0
+
+    for y in reversed(range(coord[0])):
+        char = loop_map[y][coord[1]]
+        if char == ' ':
+            break
+        if char in '-JL':
+            count += 1
+    
+    return count % 2 != 0
+
+
+
+def clear_outer_spaces(loop_map, S):
+    
+    queue = deque()
+    queue.append((0,0))
+    i = 0
+    while len(queue) > 0:
+        coord = queue.popleft()
+        cur = coord_get(coord, loop_map)
+        if cur != '.':
+            continue
+
+        loop_map[coord[0]][coord[1]] = ' '
+        
+        around = get_surroundings(coord)
+        i += 1
+
+        for spot in around:
+            adj = coord_get(spot, loop_map)
+            if adj == '.':
+                queue.append(spot)
+
+    return loop_map
+
+
+
+def find_true_loop(data, S):
+
+    starts = get_surroundings(S)
     loop_map = []
 
-    for start in starts:
+    for coord in starts:
         prev_coord = S
-        coord = add_coords(S, start)
         pipe = coord_get(coord, data)
-        dist = 1
         loop_map = [ ['.']*len(data[0]) for i in range(len(data)) ]
         loop_map[S[0]][S[1]] = 'S'
 
-        print(f"Start at {coord} (offset {start})")
+        print(f"Start at {coord}")
         
         while pipe != 'S':
             
             connectors = list(map(lambda c: add_coords(coord, c), offsets[pipe]))
-            
-            #print(f"  Coord = {coord}. Pipe = {pipe}, dist = {dist}   conns = {connectors}")
-            
             if prev_coord not in connectors:
                 break
 
             connectors.remove(prev_coord)
             prev_coord = coord
-
             loop_map[coord[0]][coord[1]] = pipe
-
             coord = connectors[0]
             pipe = coord_get(coord, data)
-            dist += 1
             
             if pipe == -1:
                 print(f"  Hit wall at {coord}. Returning to start")
                 break
 
         if pipe == 'S':
-            print(f"Start found at distance {dist}")
-            break
+            return loop_map
+    
+    print("Error, no true loop found")
+    return None
 
-    print_map(loop_map)
+
+
+def get_surroundings(coord):
+    
+    return list(map(lambda side: add_coords(coord, side), sides))
 
 
 
