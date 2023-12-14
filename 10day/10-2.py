@@ -20,6 +20,7 @@ offsets = { # (y, x)
 
 sides = [(-1,0), (0,1), (1,0), (0,-1)]
 
+
 def main(data):
 
     S = (-1, -1)
@@ -41,6 +42,7 @@ def main(data):
     
     loop_map = find_true_loop(data, S)
     loop_map = clear_outer_spaces(loop_map, S)
+
     count = 0
 
     for y in range(len(loop_map)):
@@ -60,16 +62,39 @@ def main(data):
     print(f"There are {count} spaces inside the pipe loop")
 
 
+
 def is_inside(coord, loop_map):
     
     count = 0
+    last_corner = ''
 
     for y in reversed(range(coord[0])):
         char = loop_map[y][coord[1]]
         if char == ' ':
             break
-        if char in '-JL':
+        elif char in '.|':
+            continue
+        elif char in '-S':#Cheating here: in my input the S acts as a -
             count += 1
+        elif char in "LJ":
+            last_corner = char
+        elif char == 'F':
+            if last_corner == 'J':
+                count += 1
+            elif last_corner == 'L':
+                pass
+            else:
+                print("ERROR")
+            last_corner = ''
+        elif char == '7':
+            if last_corner == 'L':
+                count += 1
+            elif last_corner == 'J':
+                pass
+            else:
+                print("ERROR")
+            last_corner = ''
+
     
     return count % 2 != 0
 
