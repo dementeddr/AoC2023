@@ -12,6 +12,7 @@ def main(data):
 
     field = []
     total_ref = 0
+    data.append(["\n"])
 
     for line in data:
         if len(line) > 1:
@@ -21,14 +22,16 @@ def main(data):
 
         mirror = find_mirror(field)
         print(f"Mirror: {mirror}")
-        print_field(field)
+        #print_field(field)
         if mirror <= 0:
             print("Pivoting...")
             field = pivot(field)
             mirror = find_mirror(field)
-            print(f"Mirror: {mirror}")
-            print_field(field)
-        
+            print(f"Pivot Mirror: {mirror}")
+            #print_field(field)
+        else:
+            mirror *= 100
+
         total_ref += mirror
         field = []
 
@@ -48,11 +51,15 @@ def find_mirror(field):
 
 
 def check_mirror(field, mirror):
+    print(f"Checking mirror {mirror}")
 
-    for y in range(mirror, len(field)):
-        yp = mirror - y
+    for i in range(mirror):
+        y  = mirror + i
+        yp = mirror - i - 1
         
         if yp < 0:
+            return True
+        if y  >= len(field):
             return True
 
         if field[y] != field[yp]:
@@ -77,10 +84,11 @@ def pivot(field):
     return new_field
 
 
+
 def print_field(field):
 
     for line in field:
-        print(''.join(line))
+        print(' '.join(line))
 
     print()
 
